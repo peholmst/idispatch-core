@@ -15,4 +15,10 @@
         The Client API for the Core subsystem of iDispatch.
     </description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+        </dependency>
+    </dependencies>
 </project>

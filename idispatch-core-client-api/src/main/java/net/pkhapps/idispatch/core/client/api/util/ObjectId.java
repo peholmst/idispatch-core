@@ -18,6 +18,11 @@ public abstract class ObjectId {
     }
 
     @Override
+    public String toString() {
+        return String.format("%s{uuid='%s'}", getClass().getSimpleName(), uuid);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

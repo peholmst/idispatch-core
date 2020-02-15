@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A resource is something (typically a vehicle with a crew) that can be dispatched to deal with incidents.
  */
-public class Resource extends IdentifiableObject<ResourceId> {
+public class Resource extends IdentifiableObject<ResourceId> implements Comparable<Resource> {
 
     private final OrganizationId organization;
     private final StationId station;
@@ -52,5 +52,10 @@ public class Resource extends IdentifiableObject<ResourceId> {
      */
     public @NotNull ResourceType getType() {
         return type;
+    }
+
+    @Override
+    public int compareTo(@NotNull Resource o) {
+        return callSign.compareTo(o.callSign);
     }
 }
