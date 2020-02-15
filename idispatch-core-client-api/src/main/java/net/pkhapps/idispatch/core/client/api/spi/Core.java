@@ -5,6 +5,8 @@ import net.pkhapps.idispatch.core.client.api.auth.AuthenticationService;
 import net.pkhapps.idispatch.core.client.api.resource.ResourceLookupService;
 import net.pkhapps.idispatch.core.client.api.resource.ResourceTypeLookupService;
 import net.pkhapps.idispatch.core.client.api.resource.StationLookupService;
+import net.pkhapps.idispatch.core.client.api.status.ResourceStateLookupService;
+import net.pkhapps.idispatch.core.client.api.status.ResourceStatusLookupService;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,6 +31,16 @@ public interface Core {
      * account).
      */
     @NotNull ResourceLookupService getResourceLookupService();
+
+    /**
+     * The {@link ResourceStateLookupService} for looking up resource states.
+     */
+    @NotNull ResourceStateLookupService getResourceStateLookupService();
+
+    /**
+     * The {@link ResourceStatusLookupService} for looking up the status of resources.
+     */
+    @NotNull ResourceStatusLookupService getResourceStatusLookupService();
 
     /**
      * The {@link ResourceTypeLookupService} for looking up resource types.
