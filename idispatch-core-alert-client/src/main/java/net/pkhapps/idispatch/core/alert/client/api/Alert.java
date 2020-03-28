@@ -10,36 +10,14 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- * Interface defining an alert.
+ * Interface defining an alert. Alerts are used when dispatching resource to assignments.
  */
-public interface Alert {
-
-    /**
-     * The ID of the alert. Each alert that has been sent out by the dispatcher has its own ID.
-     *
-     * @see Assignment#assignmentId()
-     */
-    @NotNull ObjectId alertId();
-
-    /**
-     * The date and time on which the alert was sent.
-     */
-    @NotNull Instant sentOn();
-
-    /**
-     * The date and time on which the alert was received.
-     */
-    @NotNull Instant receivedOn();
+public interface Alert extends Message {
 
     /**
      * The assignment that the alert concerns.
      */
     @NotNull Assignment assignment();
-
-    /**
-     * Acknowledges that the alert has been received.
-     */
-    void acknowledge();
 
     /**
      * Enumeration of assignment priorities.
