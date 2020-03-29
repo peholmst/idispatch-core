@@ -14,9 +14,10 @@ public interface AuthenticationClient extends ServiceClient {
      *
      * @param authenticationRequest the authentication request
      * @param <P>                   the type of the authentication process (depends on the request)
+     * @param <S>                   the type of the authenticated session (depends on the request)
      * @return the authentication process
      * @see AuthenticationProcess#authenticate()
      */
-    <P extends AuthenticationProcess>
-    @NotNull P startAuthentication(@NotNull AuthenticationRequest<P> authenticationRequest);
+    <P extends AuthenticationProcess<S>, S extends AuthenticatedSession>
+    @NotNull P startAuthentication(@NotNull AuthenticationRequest<P, S> authenticationRequest);
 }

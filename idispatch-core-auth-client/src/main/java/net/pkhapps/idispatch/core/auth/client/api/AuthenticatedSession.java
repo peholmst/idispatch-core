@@ -42,7 +42,7 @@ public interface AuthenticatedSession {
     /**
      * Refreshes the authentication token associated with this session, extending the session lifespan.
      *
-     * @throws AuthenticationException if the token cannot be refreshed
+     * @throws CannotRefreshTokenException if the token cannot be refreshed
      */
     void refresh();
 

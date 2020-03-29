@@ -10,13 +10,18 @@ import java.security.Principal;
 public interface AuthenticatedPrincipal extends Principal {
 
     /**
+     * The ID of the tenant that the principal is currently interacting with.
+     */
+    @NotNull String tenantId();
+
+    /**
      * The display name of the principal. This is what should be shown in UIs. It is not necessarily the same
      * as the {@linkplain #getName() principal name}, which can be used to uniquely identify the principal.
      */
     @NotNull String displayName();
 
     /**
-     * Checks if this principal has the given authority.
+     * Checks if this principal has the given authority in the current tenant.
      *
      * @param authority the name of the authority to check
      * @return true if the principal has the authority, false if not

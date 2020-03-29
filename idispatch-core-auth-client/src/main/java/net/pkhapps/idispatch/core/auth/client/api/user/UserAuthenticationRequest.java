@@ -8,7 +8,8 @@ import static java.util.Objects.requireNonNull;
 /**
  * Request for authenticating human users.
  */
-public class UserAuthenticationRequest implements AuthenticationRequest<UserAuthenticationProcess> {
+public class UserAuthenticationRequest implements AuthenticationRequest<UserAuthenticationProcess,
+        AuthenticatedUserSession> {
 
     private final String tenantId;
     private final String username;

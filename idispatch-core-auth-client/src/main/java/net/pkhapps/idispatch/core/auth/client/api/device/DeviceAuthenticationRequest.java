@@ -1,5 +1,6 @@
 package net.pkhapps.idispatch.core.auth.client.api.device;
 
+import net.pkhapps.idispatch.core.auth.client.api.AuthenticatedSession;
 import net.pkhapps.idispatch.core.auth.client.api.AuthenticationRequest;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +9,8 @@ import static java.util.Objects.requireNonNull;
 /**
  * Request for authenticating devices such as mobile vehicle clients or station monitors.
  */
-public class DeviceAuthenticationRequest implements AuthenticationRequest<DeviceAuthenticationProcess> {
+public class DeviceAuthenticationRequest implements AuthenticationRequest<DeviceAuthenticationProcess,
+        AuthenticatedSession> {
 
     private final String tenantId;
     private final String deviceId;

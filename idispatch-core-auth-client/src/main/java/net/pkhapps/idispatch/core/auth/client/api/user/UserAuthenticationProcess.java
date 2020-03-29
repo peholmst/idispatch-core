@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Authentication process for authenticating human users. Two-factor authentication is possible.
  */
-public interface UserAuthenticationProcess extends AuthenticationProcess {
+public interface UserAuthenticationProcess extends AuthenticationProcess<AuthenticatedUserSession> {
 
     /**
      * Checks if two-factor authentication is required. If it is, then both a

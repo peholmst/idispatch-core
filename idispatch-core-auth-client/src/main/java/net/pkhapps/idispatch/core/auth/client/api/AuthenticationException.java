@@ -1,19 +1,15 @@
 package net.pkhapps.idispatch.core.auth.client.api;
 
-import org.jetbrains.annotations.Nullable;
+import net.pkhapps.idispatch.core.client.support.MultilingualException;
+import net.pkhapps.idispatch.core.client.support.MultilingualString;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Exception thrown when authentication fails for some reason.
- *
- * @see AuthenticationProcess#authenticate()
- * @see AuthenticatedSession#refresh()
+ * Base class for authentication exceptions.
  */
-public class AuthenticationException extends RuntimeException {
+public abstract class AuthenticationException extends MultilingualException {
 
-    public AuthenticationException() {
-    }
-
-    public AuthenticationException(@Nullable String message) {
+    public AuthenticationException(@NotNull MultilingualString message) {
         super(message);
     }
 }
