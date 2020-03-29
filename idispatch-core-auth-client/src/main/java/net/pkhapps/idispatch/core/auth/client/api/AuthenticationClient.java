@@ -1,6 +1,6 @@
 package net.pkhapps.idispatch.core.auth.client.api;
 
-import net.pkhapps.idispatch.core.client.support.ServiceClient;
+import net.pkhapps.idispatch.core.client.support.api.ServiceClient;
 import org.jetbrains.annotations.NotNull;
 
 /**

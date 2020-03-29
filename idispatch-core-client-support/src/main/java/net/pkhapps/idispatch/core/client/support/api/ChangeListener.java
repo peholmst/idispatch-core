@@ -1,4 +1,4 @@
-package net.pkhapps.idispatch.core.client.support;
+package net.pkhapps.idispatch.core.client.support.api;
 
 /**
  * Interface for a listener that listens for changes of some particular property/attribute.

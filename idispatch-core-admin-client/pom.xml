@@ -9,7 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>idispatch-core-client-support</artifactId>
-    <name>iDispatch Core Client Support</name>
+    <artifactId>idispatch-core-admin-client</artifactId>
+    <name>iDispatch Core Admin Client API</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>idispatch-core-client-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

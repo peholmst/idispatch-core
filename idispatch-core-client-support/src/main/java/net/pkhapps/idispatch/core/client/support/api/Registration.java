@@ -1,4 +1,4 @@
-package net.pkhapps.idispatch.core.client.support;
+package net.pkhapps.idispatch.core.client.support.api;
 
 /**
  * Interface for a registration handle that is used to remove the registration. This is typically used for listeners.

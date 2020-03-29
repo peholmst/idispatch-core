@@ -1,8 +1,8 @@
 package net.pkhapps.idispatch.core.status.client.api;
 
-import net.pkhapps.idispatch.core.client.support.ChangeListener;
-import net.pkhapps.idispatch.core.client.support.Registration;
-import net.pkhapps.idispatch.core.client.support.ServiceClient;
+import net.pkhapps.idispatch.core.client.support.api.ChangeListener;
+import net.pkhapps.idispatch.core.client.support.api.Registration;
+import net.pkhapps.idispatch.core.client.support.api.ServiceClient;
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Point;
 

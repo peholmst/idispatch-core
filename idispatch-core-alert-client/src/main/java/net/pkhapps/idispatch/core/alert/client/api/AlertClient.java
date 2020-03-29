@@ -1,7 +1,7 @@
 package net.pkhapps.idispatch.core.alert.client.api;
 
-import net.pkhapps.idispatch.core.client.support.Registration;
-import net.pkhapps.idispatch.core.client.support.ServiceClient;
+import net.pkhapps.idispatch.core.client.support.api.Registration;
+import net.pkhapps.idispatch.core.client.support.api.ServiceClient;
 import org.jetbrains.annotations.NotNull;
 
 /**

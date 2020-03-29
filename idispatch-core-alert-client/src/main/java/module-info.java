@@ -3,7 +3,7 @@ module idispatch.core.alert.client.api {
 
     requires static org.jetbrains.annotations;
 
-    requires idispatch.core.client.support;
+    requires idispatch.core.client.support.api;
     requires org.locationtech.jts;
 
     exports net.pkhapps.idispatch.core.alert.client.api;

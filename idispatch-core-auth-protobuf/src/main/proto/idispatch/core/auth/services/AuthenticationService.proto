@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package net.pkhapps.idispatch.core.auth.proto;
+option java_multiple_files = true;
+option java_outer_classname = "AuthenticationServiceProto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+enum AuthenticationErrorCode {
+    INVALID_CREDENTIALS = 0;
+    INVALID_PRINCIPAL = 1;
+    ACCOUNT_LOCKED = 3;
+}
+
+message AuthenticationToken {
+    bytes token = 1;
+    google.protobuf.Timestamp tokenValidFrom = 2;
+    google.protobuf.Timestamp tokenValidTo = 3;
+}
+
+message UserAuthenticationRequest {
+    int64 seqNo = 1;
+    string tenantId = 2;
+    string username = 3;
+}
+
+message UserAuthenticationChallenge {
+    int64 seqNo = 1;
+    int64 conversationNo = 2;
+    bytes challenge = 3;
+    bool twoFactorAuthRequired = 4;
+}
+
+message UserPrincipal {
+    string tenantId = 1;
+    string username = 2;
+    string displayName = 3;
+    repeated string authorities = 4;
+    google.protobuf.Timestamp passwordValidTo = 5;
+}
+
+message UserAuthenticationOutcome {
+    int64 seqNo = 1;
+    int64 conversationNo = 2;
+    AuthenticationErrorCode error = 3;
+    UserPrincipal principal = 4;
+    AuthenticationToken token = 5;
+}
+
+message DeviceAuthenticationRequest {
+    int64 seqNo = 1;
+    string tenantId = 2;
+    string deviceId = 3;
+}
+
+message DeviceAuthenticationChallenge {
+    int64 seqNo = 1;
+    int64 conversationNo = 2;
+    bytes challenge = 3;
+}
+
+message DevicePrincipal {
+    string tenantId = 1;
+    string deviceId = 2;
+    string displayName = 3;
+    repeated string authorities = 4;
+}
+
+message DeviceAuthenticationOutcome {
+    int64 seqNo = 1;
+    int64 conversationNo = 2;
+    AuthenticationErrorCode error = 3;
+    DevicePrincipal principal = 4;
+    AuthenticationToken token = 5;
+}
+
+message AuthenticationResponse {
+    int64 seqNo = 1;
+    int64 conversationNo = 2;
+    bytes response = 3;
+}
+
+message TokenRefreshOutcome {
+    bool successful = 1;
+    AuthenticationToken token = 2;
+}
+
+message PasswordChangeRequest {
+    string currentPasswordHash = 1;
+    string newPasswordHash = 2;
+}
+
+enum PasswordChangeErrorCode {
+    INVALID_CURRENT_PASSWORD = 0;
+    UNSUITABLE_NEW_PASSWORD = 1;
+}
+
+message PasswordChangeOutcome {
+    PasswordChangeErrorCode error = 1;
+}
+
+service AuthenticationService {
+    rpc initUserAuthentication (UserAuthenticationRequest) returns (UserAuthenticationChallenge);
+    rpc completeUserAuthentication (AuthenticationResponse) returns (UserAuthenticationOutcome);
+    rpc initDeviceAuthentication (DeviceAuthenticationRequest) returns (DeviceAuthenticationChallenge);
+    rpc completeDeviceAuthentication (AuthenticationResponse) returns (DeviceAuthenticationOutcome);
+    rpc refreshToken (google.protobuf.Empty) returns (TokenRefreshOutcome);
+    rpc invalidateToken (google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc changePassword (PasswordChangeRequest) returns (PasswordChangeOutcome);
+}

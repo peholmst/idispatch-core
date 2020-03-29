@@ -1,7 +1,7 @@
 package net.pkhapps.idispatch.core.alert.client.api.spi;
 
 import net.pkhapps.idispatch.core.alert.client.api.AlertClient;
-import net.pkhapps.idispatch.core.client.support.Context;
+import net.pkhapps.idispatch.core.client.support.api.Context;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ServiceLoader;

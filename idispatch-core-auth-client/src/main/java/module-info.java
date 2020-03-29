@@ -3,7 +3,7 @@ module idispatch.core.auth.client.api {
 
     requires static org.jetbrains.annotations;
 
-    requires idispatch.core.client.support;
+    requires idispatch.core.client.support.api;
 
     exports net.pkhapps.idispatch.core.auth.client.api;
     exports net.pkhapps.idispatch.core.auth.client.api.device;

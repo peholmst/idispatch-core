@@ -1,6 +1,6 @@
 package net.pkhapps.idispatch.core.alert.client.api;
 
-import net.pkhapps.idispatch.core.client.support.ObjectId;
+import net.pkhapps.idispatch.core.client.support.api.ObjectId;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;

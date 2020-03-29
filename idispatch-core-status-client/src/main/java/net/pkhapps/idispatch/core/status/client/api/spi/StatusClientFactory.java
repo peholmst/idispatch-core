@@ -1,6 +1,6 @@
 package net.pkhapps.idispatch.core.status.client.api.spi;
 
-import net.pkhapps.idispatch.core.client.support.Context;
+import net.pkhapps.idispatch.core.client.support.api.Context;
 import net.pkhapps.idispatch.core.status.client.api.StatusClient;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,4 +1,4 @@
-package net.pkhapps.idispatch.core.client.support;
+package net.pkhapps.idispatch.core.client.support.api;
 
 import org.jetbrains.annotations.NotNull;
 

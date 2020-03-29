@@ -1,7 +1,7 @@
 package net.pkhapps.idispatch.core.auth.client.api;
 
-import net.pkhapps.idispatch.core.client.support.MultilingualException;
-import net.pkhapps.idispatch.core.client.support.MultilingualString;
+import net.pkhapps.idispatch.core.client.support.api.MultilingualException;
+import net.pkhapps.idispatch.core.client.support.api.MultilingualString;
 import org.jetbrains.annotations.NotNull;
 
 /**

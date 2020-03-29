@@ -1,7 +1,7 @@
 package net.pkhapps.idispatch.core.status.client.api;
 
-import net.pkhapps.idispatch.core.client.support.MultilingualString;
-import net.pkhapps.idispatch.core.client.support.ObjectId;
+import net.pkhapps.idispatch.core.client.support.api.MultilingualString;
+import net.pkhapps.idispatch.core.client.support.api.ObjectId;
 import org.jetbrains.annotations.NotNull;
 
 /**

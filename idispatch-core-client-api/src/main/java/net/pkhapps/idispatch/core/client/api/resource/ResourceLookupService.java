@@ -2,6 +2,7 @@ package net.pkhapps.idispatch.core.client.api.resource;
 
 import net.pkhapps.idispatch.core.client.api.org.OrganizationSearchHint;
 import net.pkhapps.idispatch.core.client.api.util.LookupService;
+import net.pkhapps.idispatch.core.client.api.util.Subscribable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -14,7 +15,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface ResourceLookupService extends
         LookupService.FindAll<Resource, ResourceId, OrganizationSearchHint>,
-        LookupService.FindBySearchTerm<Resource, ResourceId, OrganizationSearchHint> {
+        LookupService.FindBySearchTerm<Resource, ResourceId, OrganizationSearchHint>,
+        Subscribable.SubscribeToAll<ResourceId, OrganizationSearchHint> {
 
     /**
      * Finds the resource with the given call sign.
