@@ -7,5 +7,6 @@ module idispatch.core.auth.client.api {
 
     exports net.pkhapps.idispatch.core.auth.client.api;
     exports net.pkhapps.idispatch.core.auth.client.api.device;
+    exports net.pkhapps.idispatch.core.auth.client.api.spi;
     exports net.pkhapps.idispatch.core.auth.client.api.user;
 }

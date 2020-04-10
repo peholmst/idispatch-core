@@ -12,4 +12,16 @@
     <artifactId>idispatch-core-client-support-grpc</artifactId>
     <name>iDispatch Core gRPC Client Support</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>idispatch-core-client-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>io.grpc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

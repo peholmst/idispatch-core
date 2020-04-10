@@ -1,11 +1,10 @@
 module idispatch.core.auth.protobuf {
-    requires java.annotation;
+    requires static java.annotation;
 
     requires com.google.common;
-    requires grpc.api;
-    requires grpc.stub;
+    requires com.google.protobuf;
     requires grpc.protobuf;
-    requires protobuf.java;
+    requires io.grpc; // TODO replace with real gRPC modules once they support JPMS
 
     exports net.pkhapps.idispatch.core.auth.proto;
 }

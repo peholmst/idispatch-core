@@ -40,6 +40,16 @@ public class MultilingualString {
     }
 
     /**
+     * TODO Document me
+     *
+     * @param finnish
+     * @param swedish
+     */
+    public MultilingualString(@NotNull String finnish, @NotNull String swedish) {
+        this(Map.of(Locales.FINNISH, finnish, Locales.SWEDISH, swedish), Locales.FINNISH);
+    }
+
+    /**
      * The locales for which there are values in this multilingual string.
      */
     public @NotNull Set<Locale> locales() {
