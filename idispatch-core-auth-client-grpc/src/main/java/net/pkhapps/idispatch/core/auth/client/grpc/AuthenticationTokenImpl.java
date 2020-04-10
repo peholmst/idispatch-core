@@ -3,8 +3,10 @@ package net.pkhapps.idispatch.core.auth.client.grpc;
 import io.grpc.Metadata;
 import net.pkhapps.idispatch.core.client.support.grpc.AuthenticationToken;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 /**
  * Implementation of {@link AuthenticationToken} that is populated from a gRPC authentication token.
@@ -36,5 +38,10 @@ final class AuthenticationTokenImpl implements AuthenticationToken {
     @Override
     public @NotNull Instant validTo() {
         return validTo;
+    }
+
+    @TestOnly
+    byte[] getToken() {
+        return Arrays.copyOf(token, token.length);
     }
 }

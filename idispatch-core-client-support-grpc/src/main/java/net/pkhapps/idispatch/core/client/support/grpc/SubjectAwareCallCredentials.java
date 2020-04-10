@@ -14,10 +14,10 @@ import java.util.concurrent.Executor;
  */
 public class SubjectAwareCallCredentials extends CallCredentials {
 
-    private static final CallCredentials INSTANCE = new SubjectAwareCallCredentials();
-    private static final Metadata.Key<byte[]> AUTH_TOKEN_KEY =
+    public static final Metadata.Key<byte[]> AUTH_TOKEN_KEY =
             Metadata.Key.of("x-idispatch-auth-token" + Metadata.BINARY_HEADER_SUFFIX,
                     Metadata.BINARY_BYTE_MARSHALLER);
+    private static final CallCredentials INSTANCE = new SubjectAwareCallCredentials();
 
     private SubjectAwareCallCredentials() {
     }

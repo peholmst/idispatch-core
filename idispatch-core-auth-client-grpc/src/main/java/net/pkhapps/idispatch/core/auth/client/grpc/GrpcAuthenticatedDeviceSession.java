@@ -29,6 +29,7 @@ final class GrpcAuthenticatedDeviceSession implements AuthenticatedSession {
     private final GrpcAuthenticatedDevice principal;
     private final Subject subject;
     private AuthenticationToken token;
+    private Instant expirationTime;
 
     GrpcAuthenticatedDeviceSession(@NotNull AuthenticationServiceGrpc.AuthenticationServiceBlockingStub server,
                                    @NotNull DeviceAuthenticationOutcome outcome) {
@@ -44,6 +45,7 @@ final class GrpcAuthenticatedDeviceSession implements AuthenticatedSession {
         this.subject = new Subject();
         this.subject.getPrincipals().add(principal);
         this.subject.getPrivateCredentials().add(token);
+        this.expirationTime = token.validTo();
         LOGGER.debug("Creating new session for device [{}] and tenant [{}]", principal.getName(), principal.tenantId());
     }
 
@@ -61,7 +63,7 @@ final class GrpcAuthenticatedDeviceSession implements AuthenticatedSession {
     @Override
     public void invalidate() {
         Subject.doAs(subject, (PrivilegedAction<Object>) () -> {
-            server.invalidateToken(Empty.newBuilder().build());
+            server.invalidateToken(Empty.getDefaultInstance());
             return null;
         });
         subject.getPrivateCredentials().remove(token);
@@ -70,17 +72,18 @@ final class GrpcAuthenticatedDeviceSession implements AuthenticatedSession {
 
     @Override
     public @NotNull Instant expiresOn() {
-        return token.validTo();
+        return expirationTime;
     }
 
     @Override
     public void refresh() {
         Subject.doAs(subject, (PrivilegedAction<Object>) () -> {
-            var response = server.refreshToken(Empty.newBuilder().build());
+            var response = server.refreshToken(Empty.getDefaultInstance());
             if (response.getSuccessful() && response.hasToken()) {
                 subject.getPrivateCredentials().remove(token);
                 token = new AuthenticationTokenImpl(response.getToken());
                 subject.getPrivateCredentials().add(token);
+                expirationTime = token.validTo();
                 return null;
             } else {
                 throw new CannotRefreshTokenException();
