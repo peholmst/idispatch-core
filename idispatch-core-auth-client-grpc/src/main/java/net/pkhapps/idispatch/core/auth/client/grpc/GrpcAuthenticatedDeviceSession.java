@@ -46,7 +46,8 @@ final class GrpcAuthenticatedDeviceSession implements AuthenticatedSession {
         this.subject.getPrincipals().add(principal);
         this.subject.getPrivateCredentials().add(token);
         this.expirationTime = token.validTo();
-        LOGGER.debug("Creating new session for device [{}] and tenant [{}]", principal.getName(), principal.tenantId());
+        LOGGER.debug("Creating new session for device [{}] and tenant [{}] with token fingerprint [{}] that expires on [{}]",
+                principal.getName(), principal.tenantId(), token.fingerprint(), expirationTime);
     }
 
     @Override
@@ -62,6 +63,10 @@ final class GrpcAuthenticatedDeviceSession implements AuthenticatedSession {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void invalidate() {
+        if (token == null) {
+            return; // Already invalidated
+        }
+        LOGGER.debug("Invalidating token with fingerprint [{}]", token.fingerprint());
         Subject.doAs(subject, (PrivilegedAction<Object>) () -> {
             server.invalidateToken(Empty.getDefaultInstance());
             return null;
@@ -77,6 +82,10 @@ final class GrpcAuthenticatedDeviceSession implements AuthenticatedSession {
 
     @Override
     public void refresh() {
+        if (token == null) {
+            throw new CannotRefreshTokenException();
+        }
+        LOGGER.debug("Refreshing token with fingerprint [{}]", token.fingerprint());
         Subject.doAs(subject, (PrivilegedAction<Object>) () -> {
             var response = server.refreshToken(Empty.getDefaultInstance());
             if (response.getSuccessful() && response.hasToken()) {
@@ -84,6 +93,7 @@ final class GrpcAuthenticatedDeviceSession implements AuthenticatedSession {
                 token = new AuthenticationTokenImpl(response.getToken());
                 subject.getPrivateCredentials().add(token);
                 expirationTime = token.validTo();
+                LOGGER.debug("New token has fingerprint [{}] and expires on [{}]", token.fingerprint(), expirationTime);
                 return null;
             } else {
                 throw new CannotRefreshTokenException();

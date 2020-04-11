@@ -9,13 +9,12 @@ import net.pkhapps.idispatch.core.auth.proto.AuthenticationServiceGrpc;
 import net.pkhapps.idispatch.core.auth.proto.DeviceAuthenticationChallenge;
 import net.pkhapps.idispatch.core.auth.proto.DeviceAuthenticationOutcome;
 import net.pkhapps.idispatch.core.client.support.api.MultilingualString;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,7 +26,6 @@ import static java.util.Objects.requireNonNull;
 final class GrpcDeviceAuthenticationProcess implements DeviceAuthenticationProcess {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrpcDeviceAuthenticationProcess.class);
-    private static final String HASH_ALGORITHM = "SHA-256";
     private final AuthenticationServiceGrpc.AuthenticationServiceBlockingStub server;
     private final AtomicLong nextSeqNo;
     private final DeviceAuthenticationChallenge challenge;
@@ -47,7 +45,7 @@ final class GrpcDeviceAuthenticationProcess implements DeviceAuthenticationProce
                 .setTenantId(authenticationRequest.tenantId())
                 .setDeviceId(authenticationRequest.deviceId())
                 .build());
-        LOGGER.debug("Received challenge from server with conversation number [{}]", challenge.getConversationNo());
+        LOGGER.trace("Received challenge from server with conversation number [{}]", challenge.getConversationNo());
         verifySequenceNumber(challenge.getSeqNo());
     }
 
@@ -64,7 +62,7 @@ final class GrpcDeviceAuthenticationProcess implements DeviceAuthenticationProce
                 .setResponse(ByteString.copyFrom(computeResponseHash()))
                 .setConversationNo(challenge.getConversationNo())
                 .build());
-        LOGGER.debug("Received authentication response [{}] from server", response.getStatus());
+        LOGGER.trace("Received authentication response [{}] from server", response.getStatus());
         verifySequenceNumber(response.getSeqNo());
 
         switch (response.getStatus()) {
@@ -107,27 +105,24 @@ final class GrpcDeviceAuthenticationProcess implements DeviceAuthenticationProce
     }
 
     private byte[] computeResponseHash() {
-        LOGGER.debug("Computing response hash");
+        LOGGER.trace("Computing response hash");
         if (secret == null) {
             throw new IllegalStateException("No secret has been set");
         }
-        try {
-            var digest = MessageDigest.getInstance(HASH_ALGORITHM);
 
-            // First compute a hash of the secret since the server will only have the hash to compare with
-            var hashedSecret = digest.digest(secret.getBytes(StandardCharsets.UTF_8));
+        var digest = DigestUtils.getSha256Digest();
 
-            // Then compute the response hash based on the challenge received by the server
-            digest.update(hashedSecret);
-            digest.update(challenge.getChallenge().toByteArray());
-            return digest.digest();
-        } catch (NoSuchAlgorithmException ex) {
-            throw new InternalAuthenticationException("Could not compute response hash: " + ex.getMessage());
-        }
+        // First compute a hash of the secret since the server will only have the hash to compare with
+        var hashedSecret = digest.digest(secret.getBytes(StandardCharsets.UTF_8));
+
+        // Then compute the response hash based on the challenge received by the server
+        digest.update(hashedSecret);
+        digest.update(challenge.getChallenge().toByteArray());
+        return digest.digest();
     }
 
     private void verifySequenceNumber(long actualSequenceNumber) {
-        LOGGER.debug("Verifying sequence number {}", actualSequenceNumber);
+        LOGGER.trace("Verifying sequence number {}", actualSequenceNumber);
         if (actualSequenceNumber != nextSeqNo.getAndIncrement()) {
             throw new InternalAuthenticationException("Received invalid sequence number");
         }

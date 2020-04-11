@@ -15,11 +15,11 @@ import net.pkhapps.idispatch.core.auth.proto.*;
 import net.pkhapps.idispatch.core.client.support.grpc.GrpcContext;
 import net.pkhapps.idispatch.core.client.support.grpc.SubjectAwareCallCredentials;
 import net.pkhapps.idispatch.core.client.support.grpc.testing.AbstractGrpcTest;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class GrpcDeviceAuthenticationTest extends AbstractGrpcTest {
     private static final String DEVICE_NAME = "My Device";
     private static final Instant TOKEN_VALID_FROM = Instant.now();
     private static final Instant TOKEN_VALID_TO = TOKEN_VALID_FROM.plusSeconds(60 * 60 * 24);
-    private static final Instant REFRESHED_TOKEN_VALID_TO = TOKEN_VALID_FROM.plusSeconds(60 * 60 * 24);
+    private static final Instant REFRESHED_TOKEN_VALID_TO = TOKEN_VALID_TO.plusSeconds(60 * 60 * 24);
     private static final String AUTHORITY1 = "AUTH_FOO";
     private static final String AUTHORITY2 = "AUTH_BAR";
 
@@ -146,7 +146,7 @@ public class GrpcDeviceAuthenticationTest extends AbstractGrpcTest {
                 if (this.seqNo.incrementAndGet() != seqNo) {
                     throw new IllegalStateException("Invalid sequence number");
                 }
-                var digest = MessageDigest.getInstance("SHA-256");
+                var digest = DigestUtils.getSha256Digest();
                 var hashedSecret = digest.digest(DEVICE_SECRET.getBytes(StandardCharsets.UTF_8));
                 digest.update(hashedSecret);
                 digest.update(challenge);

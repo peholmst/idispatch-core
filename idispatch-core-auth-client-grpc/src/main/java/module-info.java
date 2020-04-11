@@ -7,6 +7,7 @@ module idispatch.core.auth.client.grpc {
     requires idispatch.core.client.support.api;
     requires idispatch.core.client.support.grpc;
     requires io.grpc;
+    requires org.apache.commons.codec;
     requires org.slf4j;
 
     provides net.pkhapps.idispatch.core.auth.client.api.spi.AuthenticationClientFactory
