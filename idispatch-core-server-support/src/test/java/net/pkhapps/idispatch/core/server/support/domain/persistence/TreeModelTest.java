@@ -2,7 +2,8 @@ package net.pkhapps.idispatch.core.server.support.domain.persistence;
 
 import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.LeafCreator;
 import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.LeafValue;
-import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.SerializableAttribute;
+import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.PersistAsTree;
+import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.PersistableAttribute;
 import org.assertj.core.data.Index;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -168,41 +169,43 @@ public class TreeModelTest {
         FOO, BAR
     }
 
+    @PersistAsTree
     public static class TestParent {
-        @SerializableAttribute
+        @PersistableAttribute
         private String myString;
-        @SerializableAttribute
+        @PersistableAttribute
         private int myInteger;
-        @SerializableAttribute
+        @PersistableAttribute
         private long myLong;
-        @SerializableAttribute(name = "myBool")
+        @PersistableAttribute(name = "myBool")
         private boolean myBoolean;
-        @SerializableAttribute
+        @PersistableAttribute
         private double myDouble;
-        @SerializableAttribute
+        @PersistableAttribute
         private TestEnum myEnum;
-        @SerializableAttribute
+        @PersistableAttribute
         private TestChild myChild;
-        @SerializableAttribute(type = TestChild.class)
+        @PersistableAttribute(type = TestChild.class)
         private Set<TestChild> myChildren;
-        @SerializableAttribute(type = String.class)
+        @PersistableAttribute(type = String.class)
         private List<String> myStringList;
-        @SerializableAttribute
+        @PersistableAttribute
         private TestLeafWrapper myLeafWrapper;
-        @SerializableAttribute
+        @PersistableAttribute
         private Instant myInstant;
-        @SerializableAttribute(type = TestLeafWrapper.class)
+        @PersistableAttribute(type = TestLeafWrapper.class)
         private List<TestLeafWrapper> myLeafWrapperList;
     }
 
+    @PersistAsTree
     public static class TestChild {
-        @SerializableAttribute
+        @PersistableAttribute
         private Integer anIntegerObject;
-        @SerializableAttribute
+        @PersistableAttribute
         private Long aLongObject;
-        @SerializableAttribute
+        @PersistableAttribute
         private Boolean aBooleanObject;
-        @SerializableAttribute
+        @PersistableAttribute
         private Double aDoubleObject;
         private UUID aUUIDToBeIgnored;
 

@@ -1,6 +1,7 @@
 package net.pkhapps.idispatch.core.server.support.domain;
 
-import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.SerializableAttribute;
+import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.ForPersistenceOnly;
+import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.PersistableAttribute;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -13,8 +14,12 @@ import java.util.Collections;
  */
 public abstract class AggregateRoot<IdT extends DomainObjectId> extends Entity<IdT> {
 
-    @SerializableAttribute(name = "_version")
+    @PersistableAttribute(name = "_version")
     private long version = 0;
+
+    @ForPersistenceOnly
+    protected AggregateRoot() {
+    }
 
     public AggregateRoot(@NotNull IdT id) {
         super(id);

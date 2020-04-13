@@ -2,7 +2,7 @@ package net.pkhapps.idispatch.core.server.support.domain.persistence;
 
 import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.LeafCreator;
 import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.LeafValue;
-import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.SerializableAttribute;
+import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.PersistableAttribute;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,12 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -52,12 +50,14 @@ public class Attribute<ClassT, AttributeT> {
     private final boolean leaf;
     private final TreeModel<AttributeT> treeModel;
     private final Serializer<AttributeT> serializer;
-    private Deserializer<AttributeT> deserializer;
+    private final Deserializer<AttributeT> deserializer;
+
+    // TODO Improve exception messages
 
     @SuppressWarnings("unchecked")
-    Attribute(@NotNull Field field) {
+    Attribute(@NotNull Field field, @NotNull Function<TypeVariable<?>, Class<?>> genericTypeResolver) {
         LOGGER.trace("Creating attribute for field [{}]", field);
-        var annotation = field.getAnnotation(SerializableAttribute.class);
+        var annotation = field.getAnnotation(PersistableAttribute.class);
         if (annotation == null) {
             LOGGER.error("Field [{}] does not have the SerializableAttribute annotation", field);
             throw new IllegalStateException("The field does not have the SerializableAttribute annotation");
@@ -67,6 +67,12 @@ public class Attribute<ClassT, AttributeT> {
             throw new IllegalStateException("The field cannot be final");
         }
         this.field = field;
+        if (!field.trySetAccessible()) {
+            LOGGER.error("Field [{}] cannot be accessed. Did you open [{}] to [{}]?", field,
+                    field.getDeclaringClass().getPackage().getName(),
+                    this.getClass().getModule().getName());
+            throw new IllegalStateException("The field cannot be accessed");
+        }
         if (annotation.name().isEmpty()) {
             this.name = field.getName();
         } else {
@@ -90,7 +96,16 @@ public class Attribute<ClassT, AttributeT> {
                 }
                 rawType = annotation.type();
             } else {
-                rawType = field.getType();
+                var genericType = field.getGenericType();
+                if (genericType instanceof TypeVariable) {
+                    rawType = genericTypeResolver.apply((TypeVariable<?>) genericType);
+                    if (rawType == null) {
+                        LOGGER.error("Generic type [{}] cannot be resolved", genericType);
+                        throw new IllegalStateException("Generic type " + genericType + " cannot be resolved");
+                    }
+                } else {
+                    rawType = field.getType();
+                }
             }
         }
 
@@ -219,7 +234,11 @@ public class Attribute<ClassT, AttributeT> {
         }
         try {
             field.trySetAccessible();
-            field.set(destination, deserializer.deserialize(value));
+            if (!field.getType().isPrimitive() || value != null) {
+                field.set(destination, deserializer.deserialize(value));
+            } else {
+                LOGGER.warn("Tried to write null to primitive field [{}]", field);
+            }
         } catch (Exception ex) {
             throw new IllegalStateException("Could not write field value to object", ex);
         }

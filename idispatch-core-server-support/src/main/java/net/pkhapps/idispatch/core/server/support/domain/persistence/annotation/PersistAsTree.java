@@ -8,17 +8,7 @@ import java.lang.annotation.Target;
 /**
  * TODO Document me
  */
-@Target(ElementType.FIELD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SerializableAttribute {
-
-    /**
-     * @return
-     */
-    String name() default "";
-
-    /**
-     * @return
-     */
-    Class<?> type() default Object.class;
+public @interface PersistAsTree {
 }

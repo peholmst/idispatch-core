@@ -1,6 +1,7 @@
 package net.pkhapps.idispatch.core.server.support.domain;
 
-import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.SerializableAttribute;
+import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.ForPersistenceOnly;
+import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.PersistableAttribute;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -14,8 +15,12 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class Entity<IdT extends DomainObjectId> implements IdentifiableDomainObject<IdT> {
 
-    @SerializableAttribute(name = "_id")
+    @PersistableAttribute(name = "_id")
     private IdT id;
+
+    @ForPersistenceOnly
+    protected Entity() {
+    }
 
     public Entity(@NotNull IdT id) {
         this.id = requireNonNull(id);

@@ -1,11 +1,14 @@
 package net.pkhapps.idispatch.core.server.support.domain.persistence;
 
-import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.SerializableAttribute;
+import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.PersistAsTree;
+import net.pkhapps.idispatch.core.server.support.domain.persistence.annotation.PersistableAttribute;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.TypeVariable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,34 +30,68 @@ public class TreeModel<ClassT> {
     private final Map<String, Attribute<ClassT, ?>> attributes;
     private final Constructor<ClassT> defaultConstructor;
 
+    // TODO Improve error logging
+
     private TreeModel(@NotNull Class<ClassT> clazz) {
         if (clazz == Object.class || clazz.isPrimitive()) {
             throw new IllegalStateException("Cannot create TreeModel for Object or primitives");
+        }
+        if (!clazz.isAnnotationPresent(PersistAsTree.class)) {
+            LOGGER.error("Class [{}] does not have the PersistAsTree annotation", clazz.getName());
+            throw new IllegalStateException("Class " + clazz.getName() + " has no PersistAsTree annotation");
         }
         LOGGER.debug("Creating tree model for [{}]", clazz.getName());
         try {
             defaultConstructor = clazz.getDeclaredConstructor();
         } catch (NoSuchMethodException ex) {
-            throw new IllegalStateException("Class has no default constructor");
+            throw new IllegalStateException("Class " + clazz.getName() + " has no default constructor");
         }
 
+        var genericTypeMap = findActualGenericTypes(clazz);
         var attributes = new HashMap<String, Attribute<ClassT, ?>>();
         Class<?> t = clazz;
-        while (t != Object.class) {
+        while (t != null && t != Object.class) {
+            LOGGER.trace("Scanning class {} for attributes", t.getName());
             for (var field : t.getDeclaredFields()) {
-                if (field.isAnnotationPresent(SerializableAttribute.class)) {
-                    var attribute = new Attribute<ClassT, Object>(field);
+                if (field.isAnnotationPresent(PersistableAttribute.class)) {
+                    var attribute = new Attribute<ClassT, Object>(field, genericTypeMap::get);
                     LOGGER.trace("Adding field [{}] as attribute [{}]", field.getName(), attribute.name());
                     if (attributes.put(attribute.name(), attribute) != null) {
-                        throw new IllegalStateException("Duplicate attribute name: " + attribute.name());
+                        throw new IllegalStateException("Duplicate attribute name " + attribute.name() + " (on field " + field.getName() + ") found in class " + t.getName());
                     }
                 }
             }
-            t = clazz.getSuperclass();
+            t = t.getSuperclass();
         }
         this.attributes = Collections.unmodifiableMap(attributes);
         // TODO Support for back references
         // TODO Detection of cycles
+    }
+
+    private static @NotNull Map<TypeVariable<?>, Class<?>> findActualGenericTypes(@NotNull Class<?> clazz) {
+        var types = new HashMap<TypeVariable<?>, Class<?>>();
+        Class<?> c = clazz;
+        while (c != null && c != Object.class) {
+            var genericSuperclass = c.getGenericSuperclass();
+            if (genericSuperclass instanceof ParameterizedType) {
+                var parameterizedType = (ParameterizedType) genericSuperclass;
+                var rawType = (Class<?>) parameterizedType.getRawType();
+                var typeParameters = rawType.getTypeParameters();
+                for (int i = 0; i < typeParameters.length; ++i) {
+                    var typeVariable = typeParameters[i];
+                    var actualType = parameterizedType.getActualTypeArguments()[i];
+                    if (actualType instanceof TypeVariable) {
+                        actualType = types.get(actualType);
+                        if (actualType == null) {
+                            throw new IllegalStateException("Cannot determine the actual type of " + typeVariable);
+                        }
+                    }
+                    types.put(typeVariable, (Class<?>) actualType);
+                }
+            }
+            c = c.getSuperclass();
+        }
+        return types;
     }
 
     /**
@@ -98,12 +135,14 @@ public class TreeModel<ClassT> {
      * @param source
      * @param destination
      */
-    public void writeObject(@NotNull ClassT source, @NotNull WriteModel<ClassT> destination) {
+    public <WriteModelT extends WriteModel<ClassT>> @NotNull WriteModelT writeObject(@NotNull ClassT source,
+                                                                                     @NotNull WriteModelT destination) {
         LOGGER.debug("Writing attributes from [{}] to [{}]", source, destination);
         var start = System.nanoTime();
         attributes().values().forEach(attribute -> writeAttribute(source, attribute, destination));
         var stop = System.nanoTime();
-        LOGGER.debug("Writing took {} ms", (stop - start) / 1000000d);
+        LOGGER.debug("Writing to {} took {} ms", destination, (stop - start) / 1000000d);
+        return destination;
     }
 
     private <AttributeT> void writeAttribute(@NotNull ClassT source,
@@ -145,7 +184,7 @@ public class TreeModel<ClassT> {
         }
         attributes.values().forEach(attribute -> readAttribute(source, attribute, destination));
         var stop = System.nanoTime();
-        LOGGER.debug("Reading took {} ms", (stop - start) / 1000000d);
+        LOGGER.debug("Reading from [{}] took {} ms", source, (stop - start) / 1000000d);
         return destination;
     }
 
