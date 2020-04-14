@@ -30,6 +30,12 @@
         <module>idispatch-core-auth-client-grpc</module>
         <module>idispatch-core-client-support-grpc-testing</module>
         <module>io.grpc</module>
+        <module>idispatch-core-server-app</module>
+        <module>idispatch-core-auth-server</module>
+        <module>idispatch-core-auth-server-grpc</module>
+        <module>idispatch-core-server-support</module>
+        <module>idispatch-core-server-support-grpc</module>
+        <module>idispatch-core-server-support-mongodb</module>
     </modules>
 
     <properties>
@@ -50,6 +56,9 @@
         <junit.version>4.13</junit.version>
         <assertj.version>3.13.2</assertj.version>
         <mockito.version>3.0.0</mockito.version>
+        <commons-codec.version>1.14</commons-codec.version>
+        <jackson.version>2.10.3</jackson.version>
+        <mongo.version>3.12.3</mongo.version>
     </properties>
 
     <dependencies>
@@ -104,6 +113,27 @@
                 <groupId>javax.annotation</groupId>
                 <artifactId>javax.annotation-api</artifactId>
                 <version>${annotations-api.version}</version>
+            </dependency>
+
+            <!-- Commons -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+
+            <!-- Jackson -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <!-- MongoDB-->
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
+                <version>${mongo.version}</version>
             </dependency>
 
             <!-- Testing -->

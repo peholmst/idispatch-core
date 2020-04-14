@@ -11,6 +11,8 @@ import org.bson.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +33,8 @@ public class DefaultAggregateMapperTest {
         aggregate.setMyString("hello world");
         aggregate.getMyList().add(new MyValueObject("first", 1));
         aggregate.getMyList().add(new MyValueObject("second", 2));
+        aggregate.setMyInstant(Instant.now());
+        aggregate.setMyEnum(MyEnum.BAR);
 
         var document = mapper.toDocument(MyAggregate.class, aggregate);
 
@@ -41,6 +45,8 @@ public class DefaultAggregateMapperTest {
         assertThat(document.getInt64("myLong").getValue()).isEqualTo(aggregate.getMyLong());
         assertThat(document.getDouble("myDouble").getValue()).isEqualTo(aggregate.getMyDouble());
         assertThat(document.getString("myString").getValue()).isEqualTo(aggregate.getMyString());
+        assertThat(document.getDateTime("myInstant").getValue()).isEqualTo(aggregate.getMyInstant().toEpochMilli());
+        assertThat(document.getString("myEnum").getValue()).isEqualTo(aggregate.getMyEnum().name());
         var myList = document.getArray("myList");
         var first = (BsonDocument) myList.get(0);
         var second = (BsonDocument) myList.get(1);
@@ -55,15 +61,36 @@ public class DefaultAggregateMapperTest {
     }
 
     @Test
+    public void toDocument_empty() {
+        var aggregate = new MyAggregate(new MyAggregateId(UUID.randomUUID().toString()));
+        var document = mapper.toDocument(MyAggregate.class, aggregate);
+
+        assertThat(document.getString("_id").getValue()).isEqualTo(aggregate.id().toString());
+        assertThat(document.getInt64("_version").getValue()).isEqualTo(aggregate.version());
+        assertThat(document.getBoolean("myBoolean").getValue()).isFalse();
+        assertThat(document.getInt32("myInteger").getValue()).isEqualTo(0);
+        assertThat(document.getInt64("myLong").getValue()).isEqualTo(0L);
+        assertThat(document.getDouble("myDouble").getValue()).isEqualTo(0d);
+        assertThat(document.get("myString").isNull()).isTrue();
+        assertThat(document.get("myEnum").isNull()).isTrue();
+        assertThat(document.get("myInstant").isNull()).isTrue();
+        assertThat(document.getArray("myList").isEmpty()).isTrue();
+    }
+
+    @Test
     public void toAggregate() {
         var document = new BsonDocument();
-        document.put("_id", new BsonString(UUID.randomUUID().toString()));
-        document.put("_version", new BsonInt64(0));
+        var now = Instant.now();
+        var id = UUID.randomUUID().toString();
+        document.put("_id", new BsonString(id));
+        document.put("_version", new BsonInt64(15));
         document.put("myBoolean", new BsonBoolean(true));
         document.put("myInteger", new BsonInt32(123));
         document.put("myLong", new BsonInt64(456));
         document.put("myDouble", new BsonDouble(3.14));
         document.put("myString", new BsonString("hello world"));
+        document.put("myEnum", new BsonString("FOO"));
+        document.put("myInstant", new BsonDateTime(now.toEpochMilli()));
 
         var myList = new BsonArray();
         document.put("myList", myList);
@@ -79,7 +106,45 @@ public class DefaultAggregateMapperTest {
         myList.add(second);
 
         var aggregate = mapper.toAggregate(MyAggregate.class, document);
-        // TODO Assertions
+
+        assertThat(aggregate.id()).isEqualTo(new MyAggregateId(id));
+        assertThat(aggregate.version()).isEqualTo(15);
+        assertThat(aggregate.isMyBoolean()).isTrue();
+        assertThat(aggregate.getMyInteger()).isEqualTo(123);
+        assertThat(aggregate.getMyLong()).isEqualTo(456);
+        assertThat(aggregate.getMyDouble()).isEqualTo(3.14);
+        assertThat(aggregate.getMyString()).isEqualTo("hello world");
+        assertThat(aggregate.getMyEnum()).isEqualTo(MyEnum.FOO);
+        assertThat(aggregate.getMyInstant()).isEqualTo(now.truncatedTo(ChronoUnit.MILLIS));
+
+        assertThat(aggregate.getMyList().get(0).getaString()).isEqualTo("first");
+        assertThat(aggregate.getMyList().get(0).getAnInt()).isEqualTo(1);
+        assertThat(aggregate.getMyList().get(1).getaString()).isEqualTo("second");
+        assertThat(aggregate.getMyList().get(1).getAnInt()).isEqualTo(2);
+    }
+
+    @Test
+    public void toAggregate_empty() {
+        var document = new BsonDocument();
+        var id = UUID.randomUUID().toString();
+        document.put("_id", new BsonString(id));
+        document.put("_version", new BsonInt64(123));
+
+        var aggregate = mapper.toAggregate(MyAggregate.class, document);
+        assertThat(aggregate.id()).isEqualTo(new MyAggregateId(id));
+        assertThat(aggregate.version()).isEqualTo(123L);
+        assertThat(aggregate.isMyBoolean()).isFalse();
+        assertThat(aggregate.getMyInteger()).isEqualTo(0);
+        assertThat(aggregate.getMyLong()).isEqualTo(0L);
+        assertThat(aggregate.getMyDouble()).isEqualTo(0.0);
+        assertThat(aggregate.getMyString()).isNull();
+        assertThat(aggregate.getMyEnum()).isNull();
+        assertThat(aggregate.getMyInstant()).isNull();
+        assertThat(aggregate.getMyList()).isEmpty();
+    }
+
+    public enum MyEnum {
+        FOO, BAR
     }
 
     public static class MyAggregateId extends UUIDDomainObjectId {
@@ -114,7 +179,11 @@ public class DefaultAggregateMapperTest {
         @PersistableAttribute(type = MyValueObject.class)
         private List<MyValueObject> myList = new ArrayList<>();
 
-        // TODO Add instant and enum fields to test
+        @PersistableAttribute
+        private Instant myInstant;
+
+        @PersistableAttribute
+        private MyEnum myEnum;
 
         @ForPersistenceOnly
         private MyAggregate() {
@@ -166,6 +235,22 @@ public class DefaultAggregateMapperTest {
 
         public List<MyValueObject> getMyList() {
             return myList;
+        }
+
+        public Instant getMyInstant() {
+            return myInstant;
+        }
+
+        public void setMyInstant(Instant myInstant) {
+            this.myInstant = myInstant;
+        }
+
+        public MyEnum getMyEnum() {
+            return myEnum;
+        }
+
+        public void setMyEnum(MyEnum myEnum) {
+            this.myEnum = myEnum;
         }
     }
 

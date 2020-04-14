@@ -56,21 +56,21 @@ public class BsonReadWriteModel<ClassT> implements ReadModel<ClassT>, WriteModel
 
     @Override
     public @NotNull <AttributeT> Stream<AttributeT> readLeafCollection(@NotNull Attribute<ClassT, AttributeT> attribute) {
-        var array = document.getArray(attribute.name());
-        if (array == null) {
+        var array = document.get(attribute.name());
+        if (array == null || array.isNull() || !array.isArray()) {
             return Stream.empty();
         } else {
-            return array.stream().map(value -> bsonValueToLeaf(attribute, value));
+            return array.asArray().stream().map(value -> bsonValueToLeaf(attribute, value));
         }
     }
 
     @Override
     public @NotNull <AttributeT> Stream<ReadModel<AttributeT>> readTreeCollection(@NotNull Attribute<ClassT, AttributeT> attribute) {
-        var array = document.getArray(attribute.name());
-        if (array == null) {
+        var array = document.get(attribute.name());
+        if (array == null || array.isNull() || !array.isArray()) {
             return Stream.empty();
         } else {
-            return array.stream().map(BsonValue::asDocument).map(BsonReadWriteModel::new);
+            return array.asArray().stream().map(BsonValue::asDocument).map(BsonReadWriteModel::new);
         }
     }
 
@@ -140,7 +140,7 @@ public class BsonReadWriteModel<ClassT> implements ReadModel<ClassT>, WriteModel
     @SuppressWarnings({"unchecked", "rawtypes"})
     private <AttributeT> AttributeT bsonValueToLeaf(@NotNull Attribute<ClassT, AttributeT> attribute,
                                                     @Nullable BsonValue value) {
-        if (value == null || value instanceof BsonNull) {
+        if (value == null || value.isNull()) {
             return null;
         }
         var type = attribute.type();

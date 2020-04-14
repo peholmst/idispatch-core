@@ -10,6 +10,15 @@ import java.time.Instant;
  */
 public interface AuthenticationToken {
 
+    /**
+     * @return
+     */
+    String fingerprint();
+
+    /**
+     * @param key
+     * @param headers
+     */
     void addToHeaders(@NotNull Metadata.Key<byte[]> key, @NotNull Metadata headers);
 
     /**
