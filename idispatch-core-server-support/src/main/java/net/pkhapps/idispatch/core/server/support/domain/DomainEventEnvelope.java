@@ -54,14 +54,14 @@ public interface DomainEventEnvelope<EventT extends DomainEvent> {
 
     /**
      * Checks if this event is still alive, meaning it's time-to-live has not yet expired. The current time is retrieved
-     * from the {@linkplain DomainContext#clock() clock} of the {@linkplain DomainContextHolder#getCurrent() current domain context}.
+     * from the {@linkplain DomainContext#clock() clock} of the {@linkplain DomainContext#current() current domain context}.
      *
      * @return true if the event is still alive, false if it is not
      * @see #eventTimestamp()
      * @see #timeToLive()
      */
     default boolean isAlive() {
-        return isAlive(DomainContextHolder.getCurrent().clock());
+        return isAlive(DomainContext.current().clock());
     }
 
     /**
