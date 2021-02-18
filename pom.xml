@@ -57,7 +57,7 @@
         <assertj.version>3.13.2</assertj.version>
         <mockito.version>3.0.0</mockito.version>
         <commons-codec.version>1.14</commons-codec.version>
-        <jackson.version>2.10.3</jackson.version>
+        <jackson.version>2.10.5.1</jackson.version>
         <mongo.version>3.12.3</mongo.version>
     </properties>
 
